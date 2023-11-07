@@ -21,11 +21,11 @@ def load_logged_in_user():
     else:
         g.user = get_db().execute(
             'SELECT * FROM user WHERE id = ?',
-            (user_id)
+            (user_id,)
         ).fetchone()
 
 
-@bp.route('register', methods=('GET', 'POST'))
+@bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
         username = request.form['username']
@@ -44,6 +44,7 @@ def register():
                     "INSERT INTO user (username, password) values (?, ?)",
                     (username, generate_password_hash(password)),
                 )
+                db.commit()
             except db.IntegrityError:
                 error = f"User {username} is already registered."
             else:
@@ -91,7 +92,7 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
-        
+
         return view(**kwargs)
-    
+
     return wrapped_view

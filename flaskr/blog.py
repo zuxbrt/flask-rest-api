@@ -17,7 +17,7 @@ def index():
     return render_template('blog/index.html', posts=posts)  
 
 
-@bp.route('/create')
+@bp.route('/create', methods=('GET', 'POST'))
 @login_required
 def create():
     if request.method == 'POST':
@@ -26,21 +26,20 @@ def create():
         error = None
 
         if not title:
-            error = 'title is required'
-        elif not body:
-            error = 'body is required'
+            error = 'Title is required.'
 
         if error is not None:
             flash(error)
         else:
             db = get_db()
             db.execute(
-                'INSERT INTO post (title, body, author_id)',
+                'INSERT INTO post (title, body, author_id)'
+                ' VALUES (?, ?, ?)',
                 (title, body, g.user['id'])
             )
             db.commit()
             return redirect(url_for('blog.index'))
-    
+
     return render_template('blog/create.html')
 
 @bp.route('/<int:id>/update', methods=('GET', 'POST'))
@@ -69,7 +68,7 @@ def update(id):
             db.commit()
             return redirect(url_for('blog.index'))
     
-    return render_template('blog/update.html')
+    return render_template('blog/update.html', post=post)
 
 
 @bp.route('/<int:id>/delete', methods=('POST',))
