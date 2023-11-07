@@ -63,7 +63,7 @@ def login():
         error = None
         user = db.execute(
             'SELECT * FROM user WHERE username = ?',
-            (username)
+            (username,)
         ).fetchone()
 
         if user is None:
@@ -78,6 +78,7 @@ def login():
         
         flash(error)
 
+    return render_template('auth/login.html')
 
 @bp.route('/logout')
 def logout():
